@@ -13,6 +13,8 @@ SRC_URI[go_1_4.sha256sum] = "3ae9f67e45a5ca7004b28808da8b1367d328a371d641ddbe636
 
 LIC_FILES_CHKSUM = "file://${WORKDIR}/go-${GO_BOOTSTRAP_VERSION}/go/LICENSE;md5=591778525c869cdde0ab5a1bf283cd81"
 
+INHIBIT_SYSROOT_STRIP = "1"
+
 setup_go_arch() {
   export GOHOSTOS="linux"
   export GOOS="linux"
