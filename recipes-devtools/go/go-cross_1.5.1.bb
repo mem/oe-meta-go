@@ -7,6 +7,8 @@ SRC_URI += "\
         file://fix-cross-compilation.patch \
         "
 
+DEPENDS = "virtual/${TARGET_PREFIX}gcc"
+
 do_compile() {
   ## install a build of Go 1.4 in the SYSROOT so we don't need it anywhere else
   ## in the system (as it currently is the default)
