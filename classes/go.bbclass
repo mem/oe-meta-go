@@ -10,7 +10,7 @@ def map_go_arch(a, d):
 
 export GOOS = "linux"
 export GOARCH = "${@map_go_arch(d.getVar('TARGET_ARCH', True), d)}"
-#export GOROOT = "${SYSROOT}${libdir}/${TARGET_SYS}/go"
+export GOROOT = "${STAGING_LIBDIR_NATIVE}/${TARGET_SYS}/go"
 export GOROOT_FINAL = "${libdir}/${TARGET_SYS}/go"
 export GOBIN_FINAL = "${GOROOT_FINAL}/bin/${GOOS}_${GOARCH}"
 export GOPKG_FINAL = "${GOROOT_FINAL}/pkg/${GOOS}_${GOARCH}"
