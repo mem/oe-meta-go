@@ -10,12 +10,14 @@ def map_go_arch(a, d):
 
 GOROOT_class-native = "${STAGING_LIBDIR_NATIVE}/go"
 GOROOT = "${STAGING_LIBDIR_NATIVE}/${TARGET_SYS}/go"
+GOBIN_FINAL_class-native = "${GOROOT_FINAL}/bin"
+GOBIN_FINAL = "${GOROOT_FINAL}/bin/${GOOS}_${GOARCH}"
 
 export GOOS = "linux"
 export GOARCH = "${@map_go_arch(d.getVar('TARGET_ARCH', True), d)}"
 export GOROOT
 export GOROOT_FINAL = "${libdir}/${TARGET_SYS}/go"
-export GOBIN_FINAL = "${GOROOT_FINAL}/bin/${GOOS}_${GOARCH}"
+export GOBIN_FINAL
 export GOPKG_FINAL = "${GOROOT_FINAL}/pkg/${GOOS}_${GOARCH}"
 export GOSRC_FINAL = "${GOROOT_FINAL}/src"
 export GO_GCFLAGS = "${TARGET_CFLAGS}"
