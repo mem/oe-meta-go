@@ -1,5 +1,7 @@
 require go_${PV}.inc
 
+PR = "r5"
+
 PN_class-native = "go-native"
 PN_class-cross = "go-cross"
 
@@ -18,11 +20,13 @@ do_compile() {
 
   setup_cgo_gcc_wrapper
 
+  ## Add WORKDIR to path.
+  export PATH="${WORKDIR}/:$PATH"
   ## TODO: consider setting GO_EXTLINK_ENABLED
   export CGO_ENABLED="${GO_CROSS_CGO_ENABLED}"
   export CC=${BUILD_CC}
-  export CC_FOR_TARGET="${WORKDIR}/${TARGET_PREFIX}gcc"
-  export CXX_FOR_TARGET="${WORKDIR}/${TARGET_PREFIX}g++"
+  export CC_FOR_TARGET="${TARGET_PREFIX}gcc"
+  export CXX_FOR_TARGET="${TARGET_PREFIX}g++"
   export GO_GCFLAGS="${HOST_CFLAGS}"
   export GO_LDFLAGS="${HOST_LDFLAGS}"
 
@@ -34,6 +38,7 @@ do_compile() {
 }
 
 go_install() {
+  
   install -d "${D}${bindir}" "${D}${GOROOT_FINAL}"
   tar -C "${WORKDIR}/go-${PV}/go" -cf - bin lib src pkg test |
   tar -C "${D}${GOROOT_FINAL}" -xf -
@@ -46,7 +51,7 @@ go_install() {
   for t in gcc g++ ; do
     cat > ${D}${GOROOT_FINAL}/bin/${TARGET_PREFIX}${t} <<EOT
 #!/bin/sh
-exec ${TARGET_PREFIX}${t} ${TARGET_CC_ARCH} --sysroot=${STAGING_DIR_TARGET} "\$@"
+exec {TARGET_PREFIX}${t} ${TARGET_CC_ARCH} --sysroot=${STAGING_DIR_TARGET} "\$@"
 EOT
     chmod +x ${D}${GOROOT_FINAL}/bin/${TARGET_PREFIX}${t}
   done
