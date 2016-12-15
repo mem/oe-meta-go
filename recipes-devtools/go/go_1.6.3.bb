@@ -51,7 +51,7 @@ go_install() {
   for t in gcc g++ ; do
     cat > ${D}${GOROOT_FINAL}/bin/${TARGET_PREFIX}${t} <<EOT
 #!/bin/sh
-exec {TARGET_PREFIX}${t} ${TARGET_CC_ARCH} --sysroot=${STAGING_DIR_TARGET} "\$@"
+exec ${TARGET_PREFIX}${t} ${TARGET_CC_ARCH} --sysroot=${STAGING_DIR_TARGET} "\$@"
 EOT
     chmod +x ${D}${GOROOT_FINAL}/bin/${TARGET_PREFIX}${t}
   done
