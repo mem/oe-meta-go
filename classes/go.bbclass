@@ -32,6 +32,9 @@ export CGO_LDFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_LDFLAGS}"
 DEPENDS += "go-cross-${TARGET_ARCH}"
 DEPENDS_class-native += "go-native"
 
+# go binaries don't use GNU_HASH. Known, disable "QA Issue: No GNU_HASH in the elf binary: ..." warnings.
+INSANE_SKIP_${PN} += "ldflags"
+
 FILES_${PN}-staticdev += "${GOSRC_FINAL}/${GO_IMPORT}"
 FILES_${PN}-staticdev += "${GOPKG_FINAL}/${GO_IMPORT}*"
 
