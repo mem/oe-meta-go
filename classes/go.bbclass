@@ -20,8 +20,10 @@ export GOROOT_FINAL = "${libdir}/${TARGET_SYS}/go"
 export GOBIN_FINAL
 export GOPKG_FINAL = "${GOROOT_FINAL}/pkg/${GOOS}_${GOARCH}"
 export GOSRC_FINAL = "${GOROOT_FINAL}/src"
-export GO_GCFLAGS = "${TARGET_CFLAGS}"
-export GO_LDFLAGS = "${TARGET_LDFLAGS}"
+GO_FLAGS ?= ""
+GO_GCFLAGS ?= ""
+GO_ASMFLAGS ?= ""
+GO_LDFLAGS ?= ""
 export CGO_CFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_CFLAGS}"
 export CGO_CPPFLAGS = "${TARGET_CPPFLAGS}"
 export CGO_CXXFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_CXXFLAGS}"
@@ -33,19 +35,36 @@ DEPENDS_class-native += "go-native"
 FILES_${PN}-staticdev += "${GOSRC_FINAL}/${GO_IMPORT}"
 FILES_${PN}-staticdev += "${GOPKG_FINAL}/${GO_IMPORT}*"
 
+GO ?= "go"
+
 GO_INSTALL ?= "${GO_IMPORT}/..."
 
+B = "${WORKDIR}/gopath"
+export GOPATH = "${B}:${STAGING_LIBDIR}/go"
+
+# The "real" GOROOT is embedded in the built go binary
+GOROOT_FINAL = "${libdir}/go"
+GOROOT_FINAL_class-native = "${STAGING_LIBDIR_NATIVE}/go"
+
+GOPKG_FINAL = "${GOROOT_FINAL}/pkg/${GOOS}_${GOARCH}"
+GOSRC_FINAL = "${GOROOT_FINAL}/src"
+
 do_go_compile() {
-	GOPATH=${S}:${STAGING_LIBDIR}/${TARGET_SYS}/go go env
-	if test -n "${GO_INSTALL}" ; then
-		GOPATH=${S}:${STAGING_LIBDIR}/${TARGET_SYS}/go go install -v ${GO_INSTALL}
+	go env
+
+	install -d ${B}/src/${GO_IMPORT}
+	tar -C ${S} -cf - . | tar -C ${B}/src/${GO_IMPORT} -xpvf -
+
+	if [ -n "${GO_INSTALL}" ]; then
+	   # `godep` needs to be run from ${S}; `go` doesn't care
+	   ( cd ${S} && ${GO} install -x -asmflags "${GO_ASMFLAGS}" -gcflags "${GO_GCFLAGS}" -ldflags "${GO_LDFLAGS}" ${GO_FLAGS} ${GO_INSTALL} )
 	fi
 }
 
 do_go_install() {
 	rm -rf ${WORKDIR}/staging
 	install -d ${WORKDIR}/staging${GOROOT_FINAL} ${D}${GOROOT_FINAL}
-	tar -C ${S} -cf - . | tar -C ${WORKDIR}/staging${GOROOT_FINAL} -xpvf -
+	tar -C ${B} -cf - . | tar -C ${WORKDIR}/staging${GOROOT_FINAL} -xpvf -
 
 	find ${WORKDIR}/staging${GOROOT_FINAL} \( \
 		-name \*.indirectionsymlink -o \
