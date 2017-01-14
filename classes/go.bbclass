@@ -8,6 +8,19 @@ def map_go_arch(a, d):
     else:
         bb.error("cannot map '%s' to a Go architecture" % a)
 
+def map_go_arm(f, d):
+    values = set(f.split())
+    if   'armv7' in values: return '7'
+    elif 'armv6' in values: return '6'
+    elif 'armv5' in values: return '5'
+    else: return ''
+
+def map_go_386(f, d):
+    values = set(f.split())
+    if   'pentium4' in values: return 'sse2'
+    elif 'i586'     in values: return '387'
+    else: return ''
+
 GOROOT_class-native = "${STAGING_LIBDIR_NATIVE}/go"
 GOROOT = "${STAGING_LIBDIR_NATIVE}/${TARGET_SYS}/go"
 GOBIN_FINAL_class-native = "${GOROOT_FINAL}/bin"
@@ -15,6 +28,8 @@ GOBIN_FINAL = "${GOROOT_FINAL}/bin/${GOOS}_${GOARCH}"
 
 export GOOS = "linux"
 export GOARCH = "${@map_go_arch(d.getVar('TARGET_ARCH', True), d)}"
+export GOARM = "${@map_go_arm(d.getVar('TUNE_FEATURES', True), d)}"
+export GO386 = "${@map_go_386(d.getVar('TUNE_FEATURES', True), d)}"
 export GOROOT
 export GOROOT_FINAL = "${libdir}/${TARGET_SYS}/go"
 export GOBIN_FINAL
@@ -24,6 +39,7 @@ GO_FLAGS ?= ""
 GO_GCFLAGS ?= ""
 GO_ASMFLAGS ?= ""
 GO_LDFLAGS ?= ""
+export CGO_ENABLED = "1"
 export CGO_CFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_CFLAGS}"
 export CGO_CPPFLAGS = "${TARGET_CPPFLAGS}"
 export CGO_CXXFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_CXXFLAGS}"
