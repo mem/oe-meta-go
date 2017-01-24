@@ -10,6 +10,7 @@ SRC_URI[sha256sum] = "4c189111e9ba651a2bb3ee868aa881fab36b2f2da3409e80885ca758a6
 
 SRC_URI += "\
         file://fix-cross-compilation.patch \
+	file://cc-args.patch \
         "
 
 LIC_FILES_CHKSUM = "file://${WORKDIR}/go-${PV}/go/LICENSE;md5=5d4950ecb7b26d2c5e4e7b4e0dd74707"

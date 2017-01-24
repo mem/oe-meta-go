@@ -1,0 +1,78 @@
+Allow CC / CC_FOR_TARGET to include arguments, and prevent the
+mangling in "go env" from affecting the output of "go env"..
+
+diff -ru go.orig/src/cmd/dist/build.go go/src/cmd/dist/build.go
+--- go.orig/src/cmd/dist/build.go	2016-02-18 07:35:20.000000000 +1100
++++ go/src/cmd/dist/build.go	2016-03-15 13:29:49.311675016 +1100
+@@ -1099,7 +1099,8 @@
+ 	if !needCC() {
+ 		return
+ 	}
+-	if output, err := exec.Command(defaultcc, "--help").CombinedOutput(); err != nil {
++	shcmd := fmt.Sprintf("%s --help", defaultcc)
++	if output, err := exec.Command("sh", "-c", shcmd).CombinedOutput(); err != nil {
+ 		outputHdr := ""
+ 		if len(output) > 0 {
+ 			outputHdr = "\nCommand output:\n\n"
+diff -ru go.orig/src/cmd/go/build.go go/src/cmd/go/build.go
+--- go.orig/src/cmd/go/build.go	2016-02-18 07:35:20.000000000 +1100
++++ go/src/cmd/go/build.go	2016-03-15 20:54:30.109492787 +1100
+@@ -2893,12 +2893,10 @@
+ // ccompilerCmd returns a command line prefix for the given environment
+ // variable and using the default command when the variable is empty.
+ func (b *builder) ccompilerCmd(envvar, defcmd, objdir string) []string {
+-	// NOTE: env.go's mkEnv knows that the first three
+-	// strings returned are "gcc", "-I", objdir (and cuts them off).
++	// NOTE: env.go's mkEnv knows that the last two
++	// strings returned are "-I", objdir (and cuts them off).
+
+-	compiler := envList(envvar, defcmd)
+-	a := []string{compiler[0], "-I", objdir}
+-	a = append(a, compiler[1:]...)
++	a := envList(envvar, defcmd)
+
+ 	// Definitely want -fPIC but on Windows gcc complains
+ 	// "-fPIC ignored for target (all code is position independent)"
+@@ -2934,6 +2932,8 @@
+ 		a = append(a, "-fno-common")
+ 	}
+
++	a = append(a, "-I", objdir)
++
+ 	return a
+ }
+
+diff -ru go.orig/src/cmd/go/env.go go/src/cmd/go/env.go
+--- go.orig/src/cmd/go/env.go	2016-02-18 07:35:20.000000000 +1100
++++ go/src/cmd/go/env.go	2016-03-15 21:01:27.694142060 +1100
+@@ -57,10 +57,10 @@
+
+ 	if goos != "plan9" {
+ 		cmd := b.gccCmd(".")
+-		env = append(env, envVar{"CC", cmd[0]})
+-		env = append(env, envVar{"GOGCCFLAGS", strings.Join(cmd[3:], " ")})
++		env = append(env, envVar{"CC", strings.Join(cmd[:len(cmd)-2], " ")})
++		env = append(env, envVar{"GOGCCFLAGS", ""})
+ 		cmd = b.gxxCmd(".")
+-		env = append(env, envVar{"CXX", cmd[0]})
++		env = append(env, envVar{"CXX", strings.Join(cmd[:len(cmd)-2], " ")})
+ 	}
+
+ 	if buildContext.CgoEnabled {
+diff -ru go.orig/src/cmd/go/go_test.go go/src/cmd/go/go_test.go
+--- go.orig/src/cmd/go/go_test.go	2016-02-18 07:35:20.000000000 +1100
++++ go/src/cmd/go/go_test.go	2016-03-15 21:09:18.514794057 +1100
+@@ -2759,3 +2759,13 @@
+ 	tg.setenv("GOPATH", tg.path("."))
+ 	tg.run("test", "-p=4", "p1", "p2", "p3", "p4")
+ }
++
++func TestGoEnvCcFlags(t *testing.T) {
++	tg := testgo(t)
++	defer tg.cleanup()
++	tg.setenv("CC", "one two three four")
++	tg.run("env", "CC")
++	if !strings.Contains(tg.getStdout(), "one two three four") {
++		t.Error("CC lost arguments")
++	}
++}

@@ -11,6 +11,7 @@ SRC_URI[sha256sum] = "6326aeed5f86cf18f16d6dc831405614f855e2d416a91fd3fdc334f772
 SRC_URI += "\
         file://Fix-ccache-compilation-issue.patch \
         file://fix-cross-compilation.patch \
+        file://cc-args.patch \
         "
 
 LIC_FILES_CHKSUM = "file://${WORKDIR}/go-${PV}/go/LICENSE;md5=591778525c869cdde0ab5a1bf283cd81"
