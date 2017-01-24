@@ -21,37 +21,28 @@ def map_go_386(f, d):
     elif 'i586'     in values: return '387'
     else: return ''
 
-GOROOT_class-native = "${STAGING_LIBDIR_NATIVE}/go"
-GOROOT = "${STAGING_LIBDIR_NATIVE}/${TARGET_SYS}/go"
-GOBIN_FINAL_class-native = "${GOROOT_FINAL}/bin"
-GOBIN_FINAL = "${GOROOT_FINAL}/bin/${GOOS}_${GOARCH}"
-
 export GOOS = "linux"
 export GOARCH = "${@map_go_arch(d.getVar('TARGET_ARCH', True), d)}"
 export GOARM = "${@map_go_arm(d.getVar('TUNE_FEATURES', True), d)}"
 export GO386 = "${@map_go_386(d.getVar('TUNE_FEATURES', True), d)}"
-export GOROOT
-export GOROOT_FINAL = "${libdir}/${TARGET_SYS}/go"
-export GOBIN_FINAL
-export GOPKG_FINAL = "${GOROOT_FINAL}/pkg/${GOOS}_${GOARCH}"
-export GOSRC_FINAL = "${GOROOT_FINAL}/src"
+
 GO_FLAGS ?= ""
 GO_GCFLAGS ?= ""
 GO_ASMFLAGS ?= ""
 GO_LDFLAGS ?= ""
 export CGO_ENABLED = "1"
-export CGO_CFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_CFLAGS}"
-export CGO_CPPFLAGS = "${TARGET_CPPFLAGS}"
-export CGO_CXXFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_CXXFLAGS}"
-export CGO_LDFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_LDFLAGS}"
+export CGO_CFLAGS = "${CFLAGS}"
+export CGO_CPPFLAGS = "${CPPFLAGS}"
+export CGO_CXXFLAGS = "${CXXFLAGS}"
+export CGO_LDFLAGS = "${LDFLAGS}"
 
-DEPENDS += "go-cross-${TARGET_ARCH}"
-DEPENDS_class-native += "go-native"
+DEPENDS += "go-native"
 
 # go binaries don't use GNU_HASH. Known, disable "QA Issue: No GNU_HASH in the elf binary: ..." warnings.
 INSANE_SKIP_${PN} += "ldflags"
 
-FILES_${PN}-staticdev += "${GOSRC_FINAL}/${GO_IMPORT}"
+PACKAGE_ARCH_${PN}-dev = "all"
+FILES_${PN}-dev += "${GOSRC_FINAL}/${GO_IMPORT}"
 FILES_${PN}-staticdev += "${GOPKG_FINAL}/${GO_IMPORT}*"
 
 GO ?= "go"
@@ -72,18 +63,18 @@ do_go_compile() {
 	go env
 
 	install -d ${B}/src/${GO_IMPORT}
-	tar -C ${S} -cf - . | tar -C ${B}/src/${GO_IMPORT} -xpvf -
+	tar -C ${S} -cf - . | tar -C ${B}/src/${GO_IMPORT} -xpf -
 
 	if [ -n "${GO_INSTALL}" ]; then
-	   # `godep` needs to be run from ${S}; `go` doesn't care
-	   ( cd ${S} && ${GO} install -x -asmflags "${GO_ASMFLAGS}" -gcflags "${GO_GCFLAGS}" -ldflags "${GO_LDFLAGS}" ${GO_FLAGS} ${GO_INSTALL} )
+	   # `godep` needs to be run from dir with ./vendor; `go` doesn't care
+	   ( cd ${B}/src/${GO_IMPORT} && ${GO} install -x -asmflags "${GO_ASMFLAGS}" -gcflags "${GO_GCFLAGS}" -ldflags "${GO_LDFLAGS}" ${GO_FLAGS} ${GO_INSTALL} )
 	fi
 }
 
 do_go_install() {
 	rm -rf ${WORKDIR}/staging
 	install -d ${WORKDIR}/staging${GOROOT_FINAL} ${D}${GOROOT_FINAL}
-	tar -C ${B} -cf - . | tar -C ${WORKDIR}/staging${GOROOT_FINAL} -xpvf -
+	tar -C ${B} -cf - src pkg | tar -C ${WORKDIR}/staging${GOROOT_FINAL} -xpf -
 
 	find ${WORKDIR}/staging${GOROOT_FINAL} \( \
 		-name \*.indirectionsymlink -o \
@@ -100,10 +91,9 @@ do_go_install() {
 
 	chown -R root:root "${D}${GOROOT_FINAL}"
 
-	if test -e "${D}${GOBIN_FINAL}" ; then
+	if test -e "${B}/bin" ; then
 		install -d -m 0755 "${D}${bindir}"
-		find "${D}${GOBIN_FINAL}" ! -type d -print0 | xargs -r0 mv --target-directory="${D}${bindir}"
-		rmdir -p "${D}${GOBIN_FINAL}" || true
+		find "${B}/bin" ! -type d -print0 | xargs -r0 install -m 0755 --target-directory="${D}${bindir}"
 	fi
 }
 
