@@ -16,6 +16,8 @@ SRC_URI += "\
 
 LIC_FILES_CHKSUM = "file://${WORKDIR}/go-${PV}/go/LICENSE;md5=591778525c869cdde0ab5a1bf283cd81"
 
+SSTATE_SCAN_CMD = "true"
+
 do_install() {
   install -d "${D}${libdir}/${PN}-${PV}"
   tar -C "${WORKDIR}/go-${PV}/go/" -cf - bin include lib pkg src test |
