@@ -2,7 +2,7 @@ DESCRIPTION = "This is a simple example recipe that cross-compiles a Go program.
 SECTION = "examples"
 HOMEPAGE = "https://golang.org/"
 
-DEPENDS = "go-cross"
+DEPENDS = "go-cross-${TARGET_ARCH}"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
