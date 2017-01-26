@@ -30,8 +30,6 @@ export CGO_LDFLAGS = "${TARGET_CC_ARCH}${TOOLCHAIN_OPTIONS} ${TARGET_LDFLAGS}"
 DEPENDS += "go-cross"
 DEPENDS_class-native += "go-native"
 
-INHIBIT_PACKAGE_STRIP = "1"
-
 FILES_${PN}-staticdev += "${GOSRC_FINAL}/${GO_IMPORT}"
 FILES_${PN}-staticdev += "${GOPKG_FINAL}/${GO_IMPORT}*"
 
