@@ -52,12 +52,15 @@ setup_go_arch() {
 }
 
 setup_cgo_gcc_wrapper() {
+  sdkpathnative=${7:-${SDKPATHNATIVE}}
+  bindir=${5:-${bindir_nativesdk}}
+
   # Is there a bug in the cross-compiler support for CGO? Can't get it
   # to work without this wrapper
   for t in gcc g++ ; do
     cat > ${WORKDIR}/${TARGET_PREFIX}${t} <<EOT
 #!/bin/sh
-exec ${TARGET_PREFIX}${t} ${TARGET_CC_ARCH} --sysroot=${STAGING_DIR_TARGET} "\$@"
+exec ${STAGING_BINDIR_TOOLCHAIN}/${TARGET_PREFIX}${t} ${TARGET_CC_ARCH} --sysroot=${STAGING_DIR_TARGET} "\$@"
 EOT
     chmod +x ${WORKDIR}/${TARGET_PREFIX}${t}
   done
