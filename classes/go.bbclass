@@ -51,6 +51,7 @@ GO_INSTALL ?= "${GO_IMPORT}/..."
 
 B = "${WORKDIR}/gopath"
 export GOPATH = "${B}:${STAGING_LIBDIR}/go"
+export GOROOT = "${STAGING_LIBDIR_NATIVE}/go"
 
 # The "real" GOROOT is embedded in the built go binary
 GOROOT_FINAL = "${libdir}/go"
