@@ -4,9 +4,10 @@ GO_IMPORT = "github.com/xenolf/lego"
 
 inherit go
 
-SRC_URI = "git://github.com/xenolf/lego;protocol=https;destsuffix=${PN}-${PV}/src/${GO_IMPORT}"
+SRC_URI = "git://github.com/xenolf/lego;protocol=https"
 SRCREV = "${AUTOREV}"
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=bc6cc6b9955a86b318178c38ac271bba"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=bc6cc6b9955a86b318178c38ac271bba"
+S = "${WORKDIR}/git"
 
-FILES_${PN} += "${GOBIN_FINAL}/*"
+GO_INSTALL = ""

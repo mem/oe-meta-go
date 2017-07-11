@@ -4,12 +4,11 @@ GO_IMPORT = "github.com/mholt/caddy"
 
 inherit go
 
-SRC_URI = "git://github.com/mholt/caddy;protocol=https;destsuffix=${PN}-${PV}/src/${GO_IMPORT}"
+SRC_URI = "git://github.com/mholt/caddy;protocol=https"
 SRCREV = "${AUTOREV}"
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE.txt;md5=e3fc50a88d0a364313df4b21ef20c29e"
-
-FILES_${PN} += "${GOBIN_FINAL}/*"
+LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=e3fc50a88d0a364313df4b21ef20c29e"
+S = "${WORKDIR}/git"
 
 DEPENDS += "\
 	github.com-burntsushi-toml \

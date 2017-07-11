@@ -4,9 +4,8 @@ GO_IMPORT = "gopkg.in/yaml.v2"
 
 inherit go
 
-SRC_URI = "git://gopkg.in/yaml.v2;protocol=https;destsuffix=${PN}-${PV}/src/${GO_IMPORT}"
+SRC_URI = "git://gopkg.in/yaml.v2;protocol=https"
 SRCREV = "${AUTOREV}"
-LICENSE = "LGPL-3"
-LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=3493bb7e185df64f59d28a975a1f91a7"
-
-FILES_${PN} += "${GOBIN_FINAL}/*"
+LICENSE = "Apache-2"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=6964839e54f4fefcdae13f22b92d0fbb"
+S = "${WORKDIR}/git"

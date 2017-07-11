@@ -1,17 +1,22 @@
 require go_${PV}.inc
 
-#PN_class-native = "go-native"
-#PN_class-cross = "go-cross-${TARGET_ARCH}"
-
-GOROOT_FINAL="${libdir}/go"
-GOROOT_FINAL_class-native="${STAGING_LIBDIR_NATIVE}/go"
+GOROOT_FINAL = "${libdir}/go"
+GOROOT_FINAL_class-native = "${STAGING_LIBDIR_NATIVE}/go"
 export GOROOT_FINAL
 
-# Go binaries are not understood by the strip tool.
-INHIBIT_SYSROOT_STRIP = "1"
-
 do_compile() {
-  go_compile
+  bash -x ./make.bash
+}
+
+go_install() {
+  install -d "${D}${bindir}" "${D}${GOROOT_FINAL}"
+  tar -C "${S}" -cf - bin lib src pkg |
+  tar -C "${D}${GOROOT_FINAL}" -xf -
+  rm -rf "${D}${GOROOT_FINAL}/pkg/bootstrap"
+
+  mv "${D}${GOROOT_FINAL}/bin/"* "${D}${bindir}/"
+
+  rm -f "${D}${GOROOT_FINAL}/src/"*.rc
 }
 
 do_install() {
@@ -19,8 +24,6 @@ do_install() {
 }
 
 do_install_class-target() {
-  setup_go_arch
-
   go_install
 
   if test "${GOHOSTOS}_${GOHOSTARCH}" != "${GOOS}_${GOARCH}" ; then
@@ -39,6 +42,4 @@ do_install_class-target() {
 
 ## TODO: implement do_clean() and ensure we actually do rebuild super cleanly
 
-INSANE_SKIP_go = "staticdev"
-
-BBCLASSEXTEND = "native"
+BBCLASSEXTEND = "native nativesdk"

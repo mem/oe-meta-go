@@ -15,6 +15,7 @@ GO_INSTALL = "\
 
 inherit go
 
-SRC_URI = "git://code.googlesource.com/gocloud;protocol=https;destsuffix=${PN}-${PV}/src/${GO_IMPORT}"
+SRC_URI = "git://code.googlesource.com/gocloud;protocol=https"
 
 SRCREV = "05253f6a829103296c351b643f6815aedd81a3fb"
+S = "${WORKDIR}/git"

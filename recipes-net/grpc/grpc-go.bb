@@ -1,10 +1,10 @@
 DESCRIPTION = "The Go language implementation of gRPC. HTTP/2 based RPC"
 SECTION = "net"
 HOMEPAGE = "https://github.com/grpc/grpc-go"
-LICENSE = "MIT"
 
 LICENSE = "BSD-3-Clause"
-LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=a4bad33881612090c6035d8393175996"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=a4bad33881612090c6035d8393175996"
+S = "${WORKDIR}/git"
 
 GO_IMPORT = "google.golang.org/grpc"
 
@@ -29,5 +29,5 @@ GO_INSTALL = "\
 
 inherit go
 
-SRC_URI = "git://github.com/grpc/grpc-go.git;protocol=https;destsuffix=${PN}-${PV}/src/${GO_IMPORT}"
+SRC_URI = "git://github.com/grpc/grpc-go.git;protocol=https"
 SRCREV = "c2781963b3af261a37e0f14fdcb7c1fa13259e1f"

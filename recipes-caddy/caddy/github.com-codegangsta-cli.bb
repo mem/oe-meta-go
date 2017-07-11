@@ -4,9 +4,12 @@ GO_IMPORT = "github.com/codegangsta/cli"
 
 inherit go
 
-SRC_URI = "git://github.com/codegangsta/cli;protocol=https;destsuffix=${PN}-${PV}/src/${GO_IMPORT}"
+SRC_URI = "git://github.com/codegangsta/cli;protocol=https"
 SRCREV = "${AUTOREV}"
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://src/${GO_IMPORT}/LICENSE;md5=ed9b539ed65d73926f30ff1f1587dc44"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=c542707ca9fc0b7802407ba62310bd8f"
+S = "${WORKDIR}/git"
 
-FILES_${PN} += "${GOBIN_FINAL}/*"
+DEPENDS += "github.com-burntsushi-toml"
+
+GO_INSTALL = "${GO_IMPORT}"
